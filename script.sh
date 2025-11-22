@@ -13,7 +13,8 @@ while true; do
         "2" "Install Docker" \
         "3" "Install EWSPoster" \
         "4" "Install Honeypot Stack"  \
-        "5" "Exit" \
+        "5" "Install Logstash" \
+        "6" "Exit" \
         3>&1 1>&2 2>&3)
 
     exitstatus=$?
@@ -31,7 +32,10 @@ while true; do
         ########################################################################
         sudo apt-get update -y
         sudo apt-get upgrade -y
-        sudo apt-get install -y wget curl nano git whiptail
+        sudo apt-get install -y wget curl nano git whiptail apt-transport-https curl gnupg 
+        sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+        sudo echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+        sudo apt update
         ;;
 
     2)
@@ -62,15 +66,13 @@ while true; do
             # cd ewsposter
             # sudo pip3 install -r requirements.txt
             # sudo pip3 install influxdb psutil docker
-            git clone https://github.com/yevonnaelandrew/ewsposter && cd ewsposter && git checkout dionaea_fluentd && sudo pip3 install -r requirements.txt && sudo pip3 install influxdb && cd ..
+            git clone https://github.com/yevonnaelandrew/ewsposter && cd ewsposter && sudo pip3 install -r requirements.txt && cd ..
             mkdir ewsposter_data ewsposter_data/log ewsposter_data/spool ewsposter_data/json
             current_dir=$(pwd)
             nodeid=$(hostname)
             sed -i "s|/home/ubuntu|$current_dir|g" ewsposter/ews.cfg
             sed -i "s|ASEAN-ID-SGU|$nodeid|g" ewsposter/ews.cfg
-            cd ewsposter
             (crontab -l 2>/dev/null; echo "*/5 * * * * cd ${current_dir}/ewsposter && /usr/bin/python3 ews.py >> ews.log 2>&1") | sudo crontab -
-            (crontab -l 2>/dev/null; echo "@weekly cd ${current_dir} && bash restart.sh >> restart.log 2>&1") | sudo crontab -
         fi
         ;;
 
@@ -139,6 +141,16 @@ while true; do
         ;;
 
     5)
+        ########################################################################
+        # Install Logstash
+        ########################################################################
+        
+        sudo apt install logstash -y
+        sudo systemctl daemon-reload
+        sudo systemctl enable logstash
+   		sudo systemctl start logstash
+        ;;
+    6)
         ########################################################################
         # Exit
         ########################################################################
