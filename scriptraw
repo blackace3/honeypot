@@ -1,0 +1,80 @@
+#!/bin/bash
+
+while true; do
+    OPTION=$(whiptail --title "Main Menu" --menu "Choose an option:" 20 70 13 \
+                    "1" "Install prerequisites" \
+                    "2" "Install Docker" \
+                    "3" "Install EWSPoster" \
+                    "4" "Install Honeypot" \
+
+    # Script version 1.0 updated 22-11-2025
+    # Depending on the chosen option, execute the corresponding command
+    case $OPTION in
+    1)
+        # Install prerequisites
+        sudo apt-get update -y
+        sudo apt-get upgrade -y
+        sudo apt-get install wget curl nano git -y
+        ;;
+    2)
+        # Install Docker
+        # Check if Docker is installed
+        if command -v docker > /dev/null; then
+            echo "Docker is already installed."
+        else
+            # Install Docker
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            sudo systemctl enable docker.service && sudo systemctl enable containerd.service
+        fi
+        ;;
+    3)
+         # Install EWSPoster
+        if [ -d "ewsposter" ] || [ -d "ewsposter_data" ]; then
+            whiptail --title "EWSPoster" --msgbox "Directory 'ewsposter' or 'ewsposter_data' already exists. Please check the folder before proceeding." 8 78
+            exit
+        else
+            sudo apt-get install python3-pip -y
+            mkdir ewsposter_data ewsposter_data/log ewsposter_data/spool ewsposter_data/json
+            # git clone --branch mongodb https://github.com/yevonnaelandrew/ewsposter && cd ewsposter
+            # sudo pip3 install -r requirements.txt && sudo pip3 install influxdb && sudo pip3 install psutil && sudo pip3 install docker
+        fi
+        ;;
+    4)
+        sudo sed -i -e "s/#Port 22/Port 22888/g" /etc/ssh/sshd_config && sudo service sshd restart
+
+        sudo docker pull dtagdevsec/cowrie:24.04.1
+        sudo docker pull dtagdevsec/conpot:24.04.1
+        sudo docker pull dtagdevsec/dionaea:24.04.1
+        sudo docker pull dtagdevsec/honeytrap:24.04.1
+        
+        
+        
+        # sudo docker pull 103.175.218.193:5000/cowrie:latest
+        # sudo docker pull 103.175.218.193:5000/conpot:latest
+        # sudo docker pull 103.175.218.193:5000/rdpy:latest
+        # sudo docker pull 103.175.218.193:5000/elasticpot:latest
+        # sudo docker pull 103.175.218.193:5000/dionaea:latest
+        # sudo docker pull 103.175.218.193:5000/honeytrap:latest
+
+        sudo docker volume create cowrie-var
+        sudo docker volume create cowrie-etc
+        
+        # sudo mkdir /var/lib/docker/volumes/rdpy /var/lib/docker/volumes/rdpy/_data
+        # sudo docker volume create gridpot
+        # sudo mkdir /var/lib/docker/volumes/elasticpot /var/lib/docker/volumes/elasticpot/_data
+
+        sudo docker run -p 22:22/tcp -p 23:23/tcp -v cowrie-etc:/cowrie/cowrie-git/etc -v cowrie-var:/cowrie/cowrie-git/var -d --cap-drop=ALL --read-only --restart unless-stopped dtagdevsec/cowrie:24.04.1
+
+        sudo docker run -it -p 21:21 -p 42:42 -p 69:69/udp -p 80:80 -p 135:135 -p 443:443 -p 445:445 -p 1433:1433 -p 1723:1723 -p 1883:1883 -p 3306:3306 -p 5060:5060 -p 5060:5060/udp -p 5061:5061 -p 11211:11211 -v dionaea:/opt/dionaea -d --restart unless-stopped dtagdevsec/dionaea:24.04.1
+
+        # sudo docker run -it -p 3389:3389 -v rdpy:/var/log -d --restart unless-stopped 103.175.218.193:5000/rdpy /bin/sh -c 'python /rdpy/bin/rdpy-rdphoneypot.py -l 3389 /rdpy/bin/1 >> /var/log/rdpy.log'
+
+        # sudo docker run -it -p 9200:9200/tcp -v elasticpot:/elasticpot/log -d --restart unless-stopped 103.175.218.193:5000/elasticpot /bin/sh -c 'cd elasticpot; python3 elasticpot.py'
+
+        sudo docker run -it -p 2222:2222 -p 8545:8545 -p 5900:5900 -p 25:25 -p 5037:5037 -p 631:631 -p 389:389 -p 6379:6379 -v honeytrap:/home -d --restart unless-stopped dtagdevsec/honeytrap:24.04.1
+
+        sudo docker run -d --restart always -v conpot:/data -p 8000:8800 -p 10201:10201 -p 5020:5020 -p 16100:16100/udp -p 47808:47808/udp -p 6230:6230/udp -p 2121:2121 -p 6969:6969/udp -p 44818:44818 dtagdevsec/conpot:24.04.1
+
+        ;;
+
