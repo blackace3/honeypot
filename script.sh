@@ -104,6 +104,7 @@ while true; do
             -v cowrie-etc:/cowrie/cowrie-git/etc \
             -v cowrie-var:/cowrie/cowrie-git/var \
             --cap-drop=ALL \
+            --cap-add=CAP_NET_BIND_SERVICE \
             --restart unless-stopped \
             --name cowrie \
             cowrie/cowrie:latest
