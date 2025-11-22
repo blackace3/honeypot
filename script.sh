@@ -57,11 +57,20 @@ while true; do
             --msgbox "Directory 'ewsposter' or 'ewsposter_data' already exists. Please check the folder before proceeding." 8 78
         else
             sudo apt-get install -y python3-pip
-            mkdir -p ewsposter_data/log ewsposter_data/spool ewsposter_data/json
+            # mkdir -p ewsposter_data/log ewsposter_data/spool ewsposter_data/json
             # git clone --branch mongodb https://github.com/yevonnaelandrew/ewsposter
             # cd ewsposter
             # sudo pip3 install -r requirements.txt
             # sudo pip3 install influxdb psutil docker
+            git clone https://github.com/yevonnaelandrew/ewsposter && cd ewsposter && git checkout dionaea_fluentd && sudo pip3 install -r requirements.txt && sudo pip3 install influxdb && cd ..
+            mkdir ewsposter_data ewsposter_data/log ewsposter_data/spool ewsposter_data/json
+            current_dir=$(pwd)
+            nodeid=$(hostname)
+            sed -i "s|/home/ubuntu|$current_dir|g" ewsposter/ews.cfg
+            sed -i "s|ASEAN-ID-SGU|$nodeid|g" ewsposter/ews.cfg
+            cd ewsposter
+            (crontab -l 2>/dev/null; echo "*/5 * * * * cd ${current_dir}/ewsposter && /usr/bin/python3 ews.py >> ews.log 2>&1") | sudo crontab -
+            (crontab -l 2>/dev/null; echo "@weekly cd ${current_dir} && bash restart.sh >> restart.log 2>&1") | sudo crontab -
         fi
         ;;
 
@@ -92,7 +101,7 @@ while true; do
             -p 22:22/tcp -p 23:23/tcp \
             -v cowrie-etc:/cowrie/cowrie-git/etc \
             -v cowrie-var:/cowrie/cowrie-git/var \
-            --cap-drop=ALL --read-only \
+            --cap-drop=ALL \
             --restart unless-stopped \
             --name cowrie \
             cowrie/cowrie:latest
@@ -126,7 +135,7 @@ while true; do
             -p 6969:6969/udp -p 44818:44818 \
             --restart always \
             --name conpot \
-            honeeypot/conpot:latest
+            honeynet/conpot
         ;;
 
     5)
