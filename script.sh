@@ -75,10 +75,10 @@ while true; do
         sudo systemctl restart ssh || sudo service sshd restart
 
         # Pull images
-        sudo docker pull dtagdevsec/cowrie:24.04.1
-        sudo docker pull dtagdevsec/conpot:24.04.1
-        sudo docker pull dtagdevsec/dionaea:24.04.1
-        sudo docker pull dtagdevsec/honeytrap:24.04.1
+        sudo docker pull cowrie/cowrie:latest
+        sudo docker pull honeynet/conpot:latest
+        sudo docker pull cowrie/dionaea:latest
+        sudo docker pull honeytrap/honeytrap
 
         # Create volumes
         sudo docker volume create cowrie-var
@@ -95,7 +95,7 @@ while true; do
             --cap-drop=ALL --read-only \
             --restart unless-stopped \
             --name cowrie \
-            dtagdevsec/cowrie:24.04.1
+            cowrie/cowrie:latest
 
         # Dionaea
         sudo docker run -d \
@@ -106,7 +106,7 @@ while true; do
             -v dionaea:/opt/dionaea \
             --restart unless-stopped \
             --name dionaea \
-            dtagdevsec/dionaea:24.04.1
+            cowrie/dionaea:latest
 
         # Honeytrap
         sudo docker run -d \
@@ -115,7 +115,7 @@ while true; do
             -v honeytrap:/home \
             --restart unless-stopped \
             --name honeytrap \
-            dtagdevsec/honeytrap:24.04.1
+            honeytrap/honeytrap:latest
 
         # Conpot
         sudo docker run -d \
@@ -126,7 +126,7 @@ while true; do
             -p 6969:6969/udp -p 44818:44818 \
             --restart always \
             --name conpot \
-            dtagdevsec/conpot:24.04.1
+            honeeypot/conpot:latest
         ;;
 
     5)
