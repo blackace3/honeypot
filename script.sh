@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Honeypot Deployment Menu
-# Script version 1.1 — Updated: 23-11-2025
+# Script version 1.2 — Updated: 25-11-2025
 #
 
 set -euo pipefail
@@ -139,7 +139,7 @@ while true; do
           -p 5061:5061 \
           -p 11211:11211 \
           -v dionaea:/opt/dionaea \
-          -v /srv/honeypots/dionaea/log:/opt/dionaea/var/log/dionaea \
+          -v /srv/honeypots/dionaea/log:/opt/dionaea/var/lib/dionaea \
           --restart unless-stopped \
           cowrie/dionaea:latest
         
@@ -152,7 +152,7 @@ while true; do
           -p 23:23 \
           -v cowrie-etc:/cowrie/cowrie-git/etc \
           -v cowrie-var:/cowrie/cowrie-git/var \
-          -v /srv/honeypots/cowrie/log:/cowrie/cowrie-git/var/log \
+          -v /srv/honeypots/cowrie/log:/cowrie/cowrie-git/var/log/cowrie \
           --cap-drop=ALL \
           --cap-add=NET_BIND_SERVICE \
           --restart unless-stopped \
@@ -172,7 +172,7 @@ while true; do
           -p 389:389 \
           -p 6379:6379 \
           -v honeytrap:/home \
-          -v /srv/honeypots/honeytrap/log:/home/log \
+          -v /srv/honeypots/honeytrap/log:/home \
           --restart unless-stopped \
           honeytrap/honeytrap:latest
         
@@ -191,7 +191,7 @@ while true; do
           -p 6969:6969/udp \
           -p 44818:44818 \
           -v conpot:/data \
-          -v /srv/honeypots/conpot/log:/data/log \
+          -v /srv/honeypots/conpot/log:/data \
           --restart always \
           honeynet/conpot:latest
         ;;
