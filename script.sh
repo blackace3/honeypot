@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Honeypot Deployment Menu
-# Script version 1.2 — Updated: 25-11-2025
+# Script version 1.3 — Updated: 29-11-2025
 #
 
 set -euo pipefail
@@ -103,22 +103,6 @@ while true; do
         sudo docker volume create dionaea
         
         # ==========================
-        # Create Host Log Directories
-        # ==========================
-        sudo mkdir -p /srv/honeypots/cowrie/log
-        sudo mkdir -p /srv/honeypots/dionaea/log
-        sudo mkdir -p /srv/honeypots/honeytrap/log
-        sudo mkdir -p /srv/honeypots/conpot/log
-        
-        # ==========================
-        # Fix Permissions
-        # ==========================
-        sudo chown 1000:1000 /srv/honeypots/cowrie/log
-        sudo chown 1000:1000 /srv/honeypots/dionaea/log
-        sudo chown 1000:1000 /srv/honeypots/honeytrap/log
-        sudo chown 1000:1000 /srv/honeypots/conpot/log
-        
-        # ==========================
         # Run Dionaea
         # ==========================
         docker run -d \
@@ -139,7 +123,6 @@ while true; do
           -p 5061:5061 \
           -p 11211:11211 \
           -v dionaea:/opt/dionaea \
-          -v /srv/honeypots/dionaea/log:/opt/dionaea/var/lib/dionaea \
           --restart unless-stopped \
           cowrie/dionaea:latest
         
@@ -152,7 +135,6 @@ while true; do
           -p 23:2223 \
           -v cowrie-etc:/cowrie/cowrie-git/etc \
           -v cowrie-var:/cowrie/cowrie-git/var \
-          -v /srv/honeypots/cowrie/log:/cowrie/cowrie-git/var/log/cowrie \
           --cap-drop=ALL \
           --cap-add=NET_BIND_SERVICE \
           --restart unless-stopped \
@@ -172,7 +154,6 @@ while true; do
           -p 389:389 \
           -p 6379:6379 \
           -v honeytrap:/home \
-          -v /srv/honeypots/honeytrap/log:/home \
           --restart unless-stopped \
           honeytrap/honeytrap:latest
         
@@ -191,7 +172,6 @@ while true; do
           -p 6969:6969/udp \
           -p 44818:44818 \
           -v conpot:/data \
-          -v /srv/honeypots/conpot/log:/data \
           --restart always \
           honeynet/conpot:latest
         ;;
