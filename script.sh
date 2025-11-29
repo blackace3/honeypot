@@ -148,8 +148,8 @@ while true; do
         # ==========================
         docker run -d \
           --name cowrie \
-          -p 22:22 \
-          -p 23:23 \
+          -p 22:2222 \
+          -p 23:2223 \
           -v cowrie-etc:/cowrie/cowrie-git/etc \
           -v cowrie-var:/cowrie/cowrie-git/var \
           -v /srv/honeypots/cowrie/log:/cowrie/cowrie-git/var/log/cowrie \
