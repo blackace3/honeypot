@@ -32,7 +32,7 @@ while true; do
         ########################################################################
         sudo apt update -y
         sudo apt upgrade -y
-        sudo apt install -y wget curl nano git whiptail apt-transport-https curl gnupg 
+        sudo apt install -y wget curl nano git whiptail apt-transport-https curl gnupg net-tools
         sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
         sudo echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
         sudo apt update
